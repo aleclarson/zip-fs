@@ -1,5 +1,5 @@
 {
-  "name": "@gmaclennan/zip-fs",
+  "name": "@cush/zip-fs",
   "version": "1.2.0",
   "description": "Random access to files in a zip archive",
   "main": "index.js",
@@ -18,13 +18,13 @@
     "concat-stream": "^2.0.0",
     "duplexify": "^4.1.1",
     "once": "^1.4.0",
-    "yauzl": "^2.10.0"
+    "yauzl": "^2.10.0",
+    "yazl": "^2.5.1"
   },
   "devDependencies": {
     "standard": "^14.3.1",
     "standard-version": "^8.0.1",
-    "tape": "^4.11.0",
-    "yazl": "^2.5.1"
+    "tape": "^4.11.0"
   },
   "directories": {
     "test": "test"
