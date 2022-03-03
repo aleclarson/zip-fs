@@ -8,11 +8,11 @@ const fs = require('fs')
 const noop = () => {}
 
 const defaultReaddirOpts = {
-  withFileTypes: false
+  withFileTypes: false,
 }
 
 class ZipFs extends EventEmitter {
-  constructor (path, cb) {
+  constructor(path, cb) {
     super()
     cb = cb ? once(cb) : noop
     this.path = path
@@ -49,7 +49,7 @@ class ZipFs extends EventEmitter {
     })
   }
 
-  _onReady (fn) {
+  _onReady(fn) {
     switch (this._state) {
       case 'error':
         process.nextTick(fn, this._error || new Error('Unknown error'))
@@ -67,18 +67,18 @@ class ZipFs extends EventEmitter {
         break
     }
 
-    function onready () {
+    function onready() {
       this.removeListener('error', onerror)
       fn()
     }
 
-    function onerror (err) {
+    function onerror(err) {
       this.removeListener('ready', onready)
       fn(err)
     }
   }
 
-  createReadStream (fileName, opts) {
+  createReadStream(fileName, opts) {
     opts = opts || {}
     if (typeof opts === 'string') opts = { encoding: opts }
     const dup = duplexify()
@@ -96,7 +96,7 @@ class ZipFs extends EventEmitter {
     return dup
   }
 
-  readFile (fileName, opts, cb) {
+  readFile(fileName, opts, cb) {
     if (typeof opts === 'function') {
       cb = opts
       opts = undefined
@@ -107,7 +107,7 @@ class ZipFs extends EventEmitter {
     rs.pipe(concat(data => cb(null, data)))
   }
 
-  readdir (filePath, opts, cb) {
+  readdir(filePath, opts, cb) {
     if (typeof opts === 'function') {
       cb = opts
       opts = undefined
@@ -134,7 +134,7 @@ class ZipFs extends EventEmitter {
     })
   }
 
-  close (cb) {
+  close(cb) {
     this._state = 'closed'
     if (!this._zipfile) return
     this._zipfile.once('close', cb)
@@ -146,6 +146,6 @@ module.exports = ZipFs
 
 // Similar to path.relative('/', filePath) but will treat as POSIX on Windows,
 // since zipfile paths are all posix
-function makeRelativeToRoot (filePath) {
+function makeRelativeToRoot(filePath) {
   return filePath.replace(/^\.\/|^.$|^\//, '').replace(/(.+)\/$/, '$1')
 }
