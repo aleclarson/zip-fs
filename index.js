@@ -5,8 +5,6 @@ const concat = require('concat-stream')
 const once = require('once')
 const fs = require('fs')
 
-const noop = () => {}
-
 const defaultReaddirOpts = {
   withFileTypes: false,
 }
@@ -18,7 +16,6 @@ class ZipFs extends EventEmitter {
    */
   constructor(path, cb) {
     super()
-    cb = cb ? once(cb) : noop
 
     /**
      * @type {string}
@@ -37,12 +34,18 @@ class ZipFs extends EventEmitter {
      */
     this._entries = {}
 
+    if (cb) {
+      cb = once(cb)
+      this.once('error', cb)
+      this.once('ready', cb)
+    }
+
     yauzl.open(this.path, { autoClose: false }, (err, zipfile) => {
       if (err) {
         this._state = 'error'
         this._error = err
         this.emit('error', err)
-        return cb(err)
+        return
       }
 
       /**
@@ -62,12 +65,10 @@ class ZipFs extends EventEmitter {
         this._error = err
         zipfile.close()
         this.emit('error', err)
-        cb(err)
       })
       zipfile.on('end', () => {
         this._state = 'ready'
         this.emit('ready')
-        cb()
       })
     })
   }
