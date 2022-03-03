@@ -12,12 +12,31 @@ const defaultReaddirOpts = {
 }
 
 class ZipFs extends EventEmitter {
+  /**
+   * @param {string} path
+   * @param {(error: any) => void} [cb]
+   */
   constructor(path, cb) {
     super()
     cb = cb ? once(cb) : noop
+
+    /**
+     * @type {string}
+     */
     this.path = path
+    /**
+     * @type {"opening" | "closed" | "ready" | "reading" | "error"}
+     */
     this._state = 'opening'
+    /**
+     * @type {string[]}
+     */
     this._files = []
+    /**
+     * @type {Record<string, any>}
+     */
+    this._entries = {}
+
     yauzl.open(this.path, { autoClose: false }, (err, zipfile) => {
       if (err) {
         this._state = 'error'
@@ -25,9 +44,13 @@ class ZipFs extends EventEmitter {
         this.emit('error', err)
         return cb(err)
       }
-      this._state = 'reading'
+
+      /**
+       * @type {yauzl.ZipFile}
+       */
       this._zipfile = zipfile
-      this._entries = {}
+
+      this._state = 'reading'
       zipfile.on('entry', entry => {
         this._files.push(entry.fileName)
         // Ignore directory entries
@@ -96,6 +119,11 @@ class ZipFs extends EventEmitter {
     return dup
   }
 
+  /**
+   * @param {string} fileName
+   * @param {*} opts
+   * @param {*} cb
+   */
   readFile(fileName, opts, cb) {
     if (typeof opts === 'function') {
       cb = opts
@@ -134,6 +162,9 @@ class ZipFs extends EventEmitter {
     })
   }
 
+  /**
+   * @param {() => void} cb
+   */
   close(cb) {
     this._state = 'closed'
     if (!this._zipfile) return
